@@ -2,109 +2,109 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import seaborn as sns
-import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
 
-# ── 스타일 설정 ──
 plt.rcParams['font.family'] = 'DejaVu Sans'
 plt.rcParams['axes.spines.top'] = False
 plt.rcParams['axes.spines.right'] = False
-sns.set_palette("muted")
 
 df = pd.read_csv('campaign_data.csv')
+main_df    = df[df['experiment'] == 'main'].copy()
+framing_df = df[df['experiment'] == 'framing'].copy()
 
-# ── 색상 정의 ──
 platform_colors = {'Facebook': '#1877F2', 'TikTok': '#010101'}
-framing_colors  = {'bust': '#E07B54', 'full_body': '#5B8DB8'}
-subject_colors  = {'human': '#4CAF50', 'ai': '#9C27B0', 'character': '#FF9800'}
-format_colors   = {'video': '#E07B54', 'image': '#5B8DB8'}
+model_colors    = {'influencer': '#E07B54', 'general': '#5B8DB8'}
+framing_colors  = {'closeup': '#E07B54', 'fullshot': '#5B8DB8'}
+model_labels    = {'influencer': 'Influencer', 'general': 'General'}
+framing_labels  = {'closeup': 'Close-Up', 'fullshot': 'Full-Shot'}
 
 # ════════════════════════════════════════════════
-# Figure 1: Platform 비교 — CTR & Conversion Rate
+# Figure 1: 메인 실험 — CTR & Conversion Rate
 # ════════════════════════════════════════════════
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-fig.suptitle('Platform Comparison: Facebook vs TikTok', fontsize=14, fontweight='bold', y=1.02)
+fig.suptitle('Main Experiment: Influencer vs General Close-Up', fontsize=14, fontweight='bold')
 
-platform_summary = df.groupby('platform').agg(
+main_summary = main_df.groupby(['platform', 'model_type']).agg(
     avg_ctr=('ctr', 'mean'),
-    avg_conv_rate=('conversion_rate', 'mean'),
-    total_conversions=('conversions', 'sum'),
-    total_spend=('spend_krw', 'sum')
+    avg_conv=('conversion_rate', 'mean')
 ).reset_index()
 
-# CTR
-bars = axes[0].bar(platform_summary['platform'], platform_summary['avg_ctr'],
-                   color=[platform_colors[p] for p in platform_summary['platform']],
-                   width=0.5, edgecolor='white')
-for bar, val in zip(bars, platform_summary['avg_ctr']):
-    axes[0].text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.03,
-                 f'{val:.2f}%', ha='center', va='bottom', fontweight='bold', fontsize=11)
-axes[0].set_title('Avg CTR by Platform', fontsize=12)
-axes[0].set_ylabel('CTR (%)')
-axes[0].set_ylim(0, 2.8)
+import numpy as np
+for ax, metric, label, ylim in zip(
+    axes,
+    ['avg_ctr', 'avg_conv'],
+    ['Avg CTR (%)', 'Avg Conversion Rate (%)'],
+    [4.0, 50]
+):
+    x = np.arange(2)
+    width = 0.35
+    for i, platform in enumerate(['Facebook', 'TikTok']):
+        sub = main_summary[main_summary['platform'] == platform].set_index('model_type')
+        vals = [sub.loc['influencer', metric], sub.loc['general', metric]]
+        bars = ax.bar(x + i * width, vals, width,
+                      label=platform,
+                      color=list(platform_colors.values())[i],
+                      alpha=0.85, edgecolor='white')
+        for bar, val in zip(bars, vals):
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.05,
+                    f'{val:.2f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+    ax.set_xticks(x + width / 2)
+    ax.set_xticklabels(['Influencer', 'General'], fontsize=11)
+    ax.set_ylabel(label)
+    ax.set_ylim(0, ylim)
+    ax.legend()
 
-# Conversion Rate
-bars2 = axes[1].bar(platform_summary['platform'], platform_summary['avg_conv_rate'],
-                    color=[platform_colors[p] for p in platform_summary['platform']],
-                    width=0.5, edgecolor='white')
-for bar, val in zip(bars2, platform_summary['avg_conv_rate']):
-    axes[1].text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.3,
-                 f'{val:.1f}%', ha='center', va='bottom', fontweight='bold', fontsize=11)
-axes[1].set_title('Avg Conversion Rate by Platform\n(click → website action)', fontsize=12)
-axes[1].set_ylabel('Conversion Rate (%)')
-axes[1].set_ylim(0, 42)
+axes[0].set_title('CTR by Model Type & Platform')
+axes[1].set_title('Conversion Rate by Model Type & Platform')
 
 plt.tight_layout()
-plt.savefig('fig1_platform_comparison.png', dpi=150, bbox_inches='tight')
+plt.savefig('figures/fig1_main_experiment.png', dpi=150, bbox_inches='tight')
 plt.close()
 print("✓ Fig 1 saved")
 
 # ════════════════════════════════════════════════
-# Figure 2: Creative별 CTR (A/B 테스트 메인 결과)
+# Figure 2: 주차별 CTR 추이 (시계열)
 # ════════════════════════════════════════════════
-fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-fig.suptitle('A/B Test Results: CTR by Creative (6 Concepts)', fontsize=14, fontweight='bold')
+fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+fig.suptitle('Weekly CTR Trend: Before & After Budget Reallocation', fontsize=14, fontweight='bold')
+
+weekly = main_df.groupby(['platform', 'model_type', 'week']).agg(
+    avg_ctr=('ctr', 'mean')
+).reset_index()
 
 for ax, platform in zip(axes, ['Facebook', 'TikTok']):
-    sub = df[(df['platform'] == platform) & (df['format'] == 'video')].sort_values('ctr', ascending=False).copy()
-    short_names = [n.replace(' (Photo)', '') for n in sub['creative_name']]
-    colors = [subject_colors[s] for s in sub['subject_type']]
+    sub = weekly[weekly['platform'] == platform]
+    for model, color in model_colors.items():
+        data = sub[sub['model_type'] == model].sort_values('week')
+        ax.plot(data['week'], data['avg_ctr'],
+                marker='o', color=color, linewidth=2.5, markersize=7,
+                label=model_labels[model])
 
-    bars = ax.barh(range(len(sub)), sub['ctr'], color=colors, edgecolor='white', height=0.6)
-    ax.set_yticks(range(len(sub)))
-    ax.set_yticklabels(short_names, fontsize=10)
-    ax.set_xlabel('CTR (%)')
-    ax.set_title(f'{platform}', fontsize=12, fontweight='bold')
-    ax.invert_yaxis()
+    # 예산 재배분 시점 표시
+    ax.axvline(x=2.5, color='gray', linestyle='--', linewidth=1.5, alpha=0.7)
+    ax.text(2.55, ax.get_ylim()[1] * 0.92 if ax.get_ylim()[1] > 0 else 3.5,
+            'Budget\nReallocated', fontsize=8, color='gray')
 
-    for bar, val in zip(bars, sub['ctr']):
-        ax.text(val + 0.02, bar.get_y() + bar.get_height()/2,
-                f'{val:.2f}%', va='center', fontsize=10, fontweight='bold')
-
-    # 1위 하이라이트
-    bars[0].set_edgecolor('#FF5722')
-    bars[0].set_linewidth(2.5)
-    ax.set_xlim(0, sub['ctr'].max() * 1.35)
-
-legend_patches = [mpatches.Patch(color=subject_colors['human'], label='Human'),
-                  mpatches.Patch(color=subject_colors['ai'], label='AI'),
-                  mpatches.Patch(color=subject_colors['character'], label='Character')]
-axes[1].legend(handles=legend_patches, loc='lower right', fontsize=9)
+    ax.set_title(platform, fontsize=12, fontweight='bold')
+    ax.set_xlabel('Week')
+    ax.set_ylabel('CTR (%)')
+    ax.set_xticks([1, 2, 3, 4])
+    ax.set_xticklabels(['Week 1', 'Week 2', 'Week 3', 'Week 4'])
+    ax.legend()
 
 plt.tight_layout()
-plt.savefig('fig2_ab_test_ctr.png', dpi=150, bbox_inches='tight')
+plt.savefig('figures/fig2_weekly_trend.png', dpi=150, bbox_inches='tight')
 plt.close()
 print("✓ Fig 2 saved")
 
 # ════════════════════════════════════════════════
-# Figure 3: Framing 효과 — Bust vs Full Body
+# Figure 3: 추가 실험 — 클로즈업 vs 전신 (Framing)
 # ════════════════════════════════════════════════
-fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-fig.suptitle('Framing Effect: Bust-Only vs Full-Body', fontsize=14, fontweight='bold')
+fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+fig.suptitle('Additional Experiment: Close-Up vs Full-Shot (Framing Effect)', fontsize=14, fontweight='bold')
 
-video_df = df[df['format'] == 'video'].copy()
-framing_platform = video_df.groupby(['platform', 'framing']).agg(
+framing_summary = framing_df.groupby(['platform', 'framing']).agg(
     avg_ctr=('ctr', 'mean'),
     avg_conv=('conversion_rate', 'mean')
 ).reset_index()
@@ -113,124 +113,76 @@ for ax, metric, label, ylim in zip(
     axes,
     ['avg_ctr', 'avg_conv'],
     ['Avg CTR (%)', 'Avg Conversion Rate (%)'],
-    [3.2, 45]
+    [3.5, 45]
 ):
     x = np.arange(2)
     width = 0.35
-    platforms = ['Facebook', 'TikTok']
-
-    for i, platform in enumerate(platforms):
-        sub = framing_platform[framing_platform['platform'] == platform].set_index('framing')
-        vals = [sub.loc['bust', metric], sub.loc['full_body', metric]]
-        bars = ax.bar(x + i*width, vals, width, label=platform,
-                      color=list(platform_colors.values())[i], alpha=0.85)
+    for i, platform in enumerate(['Facebook', 'TikTok']):
+        sub = framing_summary[framing_summary['platform'] == platform].set_index('framing')
+        vals = [sub.loc['closeup', metric], sub.loc['fullshot', metric]]
+        bars = ax.bar(x + i * width, vals, width,
+                      label=platform,
+                      color=list(platform_colors.values())[i],
+                      alpha=0.85, edgecolor='white')
         for bar, val in zip(bars, vals):
-            ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                    f'{val:.1f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
-
-    ax.set_xticks(x + width/2)
-    ax.set_xticklabels(['Bust Only', 'Full Body'], fontsize=11)
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.05,
+                    f'{val:.2f}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+    ax.set_xticks(x + width / 2)
+    ax.set_xticklabels(['Close-Up', 'Full-Shot'], fontsize=11)
     ax.set_ylabel(label)
     ax.set_ylim(0, ylim)
     ax.legend()
 
-axes[0].set_title('CTR: Bust vs Full Body')
-axes[1].set_title('Conversion Rate: Bust vs Full Body')
+axes[0].set_title('CTR by Framing & Platform')
+axes[1].set_title('Conversion Rate by Framing & Platform')
 
 plt.tight_layout()
-plt.savefig('fig3_framing_effect.png', dpi=150, bbox_inches='tight')
+plt.savefig('figures/fig3_framing_experiment.png', dpi=150, bbox_inches='tight')
 plt.close()
 print("✓ Fig 3 saved")
 
 # ════════════════════════════════════════════════
-# Figure 4: Video vs Photo (Facebook only)
+# Figure 4: 종합 요약 Heatmap (2x2)
 # ════════════════════════════════════════════════
-fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-fig.suptitle('Format Comparison: Video vs Photo (Facebook)', fontsize=14, fontweight='bold')
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+fig.suptitle('Summary Heatmap: CTR & Conversion Rate\n(Model Type × Platform)', fontsize=13, fontweight='bold')
 
-fb_df = df[df['platform'] == 'Facebook'].copy()
-# human bust만 비교 (같은 크리에이티브 컨셉)
-fb_human_bust = fb_df[fb_df['subject_type'] == 'human'].groupby('format').agg(
+main_agg = main_df.groupby(['platform', 'model_type']).agg(
     avg_ctr=('ctr', 'mean'),
     avg_conv=('conversion_rate', 'mean')
 ).reset_index()
 
-for ax, metric, label, ylim in zip(
+for ax, metric, label in zip(
     axes,
     ['avg_ctr', 'avg_conv'],
-    ['CTR (%)', 'Conversion Rate (%)'],
-    [3.5, 40]
+    ['CTR (%)', 'Conversion Rate (%)']
 ):
-    bars = ax.bar(fb_human_bust['format'], fb_human_bust[metric],
-                  color=[format_colors[f] for f in fb_human_bust['format']],
-                  width=0.4, edgecolor='white')
-    for bar, val in zip(bars, fb_human_bust[metric]):
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f'{val:.2f}', ha='center', va='bottom', fontsize=12, fontweight='bold')
-    ax.set_ylabel(label)
-    ax.set_ylim(0, ylim)
-    ax.set_xticklabels(['Video', 'Photo'], fontsize=12)
-
-axes[0].set_title('CTR: Video vs Photo')
-axes[1].set_title('Conversion Rate: Video vs Photo')
+    pivot = main_agg.pivot(index='model_type', columns='platform', values=metric)
+    pivot.index = [model_labels[i] for i in pivot.index]
+    sns.heatmap(pivot, annot=True, fmt='.2f', cmap='YlOrRd',
+                ax=ax, linewidths=0.5, cbar_kws={'label': label})
+    ax.set_title(label)
+    ax.set_xlabel('')
+    ax.set_ylabel('')
 
 plt.tight_layout()
-plt.savefig('fig4_video_vs_photo.png', dpi=150, bbox_inches='tight')
+plt.savefig('figures/fig4_summary_heatmap.png', dpi=150, bbox_inches='tight')
 plt.close()
 print("✓ Fig 4 saved")
 
 # ════════════════════════════════════════════════
-# Figure 5: Budget Reallocation — Before vs After
+# Summary
 # ════════════════════════════════════════════════
-fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-fig.suptitle('Budget Reallocation Strategy (Based on A/B Test)', fontsize=14, fontweight='bold')
-
-creatives = ['Close-Up\nClara', 'Full-Shot\nClara', 'Close-Up\nNova', 'Full-Shot\nNova', 'Buddy', 'Mochi']
-
-# Before: 균등 배분
-before = [50000, 50000, 50000, 50000, 50000, 50000]
-# After: 상위 2개로 집중 (기억 기반 — human bust 최고 성과)
-after  = [110000, 80000, 50000, 30000, 20000, 10000]
-
-x = np.arange(len(creatives))
-width = 0.35
-
-bars1 = axes[0].bar(x, before, width*2, color='#B0BEC5', edgecolor='white', label='Week 1–2 (Equal)')
-bars2 = axes[1].bar(x, after,  width*2,
-                    color=['#E07B54' if i < 2 else '#B0BEC5' for i in range(6)],
-                    edgecolor='white', label='Week 3–4 (Optimized)')
-
-for ax, bars, vals in zip(axes, [bars1, bars2], [before, after]):
-    ax.set_xticks(x)
-    ax.set_xticklabels(creatives, fontsize=9)
-    ax.set_ylabel('Budget (KRW)')
-    ax.set_ylim(0, 135000)
-    for bar, val in zip(bars, vals):
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1500,
-                f'₩{val//1000}K', ha='center', va='bottom', fontsize=9)
-
-axes[0].set_title('Initial Allocation (Equal Split)', fontsize=11)
-axes[1].set_title('Reallocated (Top 2 Creatives → 63% of Budget)', fontsize=11)
-
-highlight = mpatches.Patch(color='#E07B54', label='Top-performing creatives')
-axes[1].legend(handles=[highlight], fontsize=9)
-
-plt.tight_layout()
-plt.savefig('fig5_budget_reallocation.png', dpi=150, bbox_inches='tight')
-plt.close()
-print("✓ Fig 5 saved")
-
-# ════════════════════════════════════════════════
-# Summary stats 출력
-# ════════════════════════════════════════════════
-print("\n" + "="*50)
+print("\n" + "=" * 55)
 print("CAMPAIGN SUMMARY")
-print("="*50)
-print(f"Total Spend:       ₩{df['spend_krw'].sum():,}")
-print(f"Total Impressions: {df['impressions'].sum():,}")
-print(f"Total Clicks:      {df['clicks'].sum():,}")
-print(f"Overall CTR:       {df['clicks'].sum()/df['impressions'].sum()*100:.2f}%")
-print(f"Total Conversions: {df['conversions'].sum():,}")
-print(f"\nTop Creative (CTR):  {df.loc[df['ctr'].idxmax(), 'creative_name']} ({df['ctr'].max():.2f}%) on {df.loc[df['ctr'].idxmax(), 'platform']}")
-print(f"Top Creative (Conv): {df.loc[df['conversion_rate'].idxmax(), 'creative_name']} ({df['conversion_rate'].max():.1f}%) on {df.loc[df['conversion_rate'].idxmax(), 'platform']}")
-print("="*50)
+print("=" * 55)
+print(f"Total Spend:         ₩{df['spend_krw'].sum():,}")
+print(f"Total Impressions:   {df['impressions'].sum():,}")
+print(f"Total Clicks:        {df['clicks'].sum():,}")
+print(f"Overall CTR:         {df['clicks'].sum()/df['impressions'].sum()*100:.2f}%")
+print(f"Total Conversions:   {df['conversions'].sum():,}")
+
+main_only = main_df.groupby(['platform', 'model_type']).agg(avg_ctr=('ctr','mean')).reset_index()
+best = main_only.loc[main_only['avg_ctr'].idxmax()]
+print(f"\nBest performer:      {model_labels[best['model_type']]} on {best['platform']} (avg CTR {best['avg_ctr']:.2f}%)")
+print("=" * 55)

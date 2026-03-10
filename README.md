@@ -5,68 +5,76 @@
 
 ## 🗂 Project Overview
 
-As the **Performance Marketing Lead** for a startup competition team, I planned and executed a one-month paid advertising campaign across **Facebook and TikTok** with a total budget of ₩300,000 KRW (~$230 USD).
+As the **Performance Marketing Lead** for a startup competition team, I planned and ran a one-month paid advertising campaign across **Facebook and TikTok** to promote an influencer-fan video call platform targeting Korean influencers and Southeast Asian fans.
 
-To maximize conversion efficiency, I designed an **A/B test across 6 distinct video creatives** varying subject type and framing, then used the results to reallocate budget toward top-performing ads.
-
-This repository documents the data analysis I performed after the campaign to extract structured insights from the results.
-
----
-
-## 🎯 Research Questions
-
-1. Which creative concept drives the highest CTR?
-2. Does **framing** (bust-only vs. full-body) affect performance?
-3. Which platform performs better for **CTR** vs. **conversion rate**?
-4. Does **video outperform photo** for the same creative concept?
-5. How should budget be reallocated based on test results?
+- **Total budget:** ₩300,000 KRW (~$230 USD)
+- **Duration:** 4 weeks
+- **Platforms:** Facebook Ads, TikTok Ads
+- **Creatives tested:** 6 video ads across 2 experiments
 
 ---
 
-## 🧪 Creative Variables Tested
+## 🧪 Experiment Structure
 
-| Variable | Options Tested |
+### Main Experiment: Influencer vs General Person
+> **Does using an influencer's face vs. a general person's face produce higher CTR and conversion rate?**
+
+Our service connects influencers and fans through 1:1 video calls. Two competing hypotheses:
+- **Influencer close-up** → fans recognize the face → stronger emotional pull → higher CTR
+- **General person close-up** → "someone like me" → relatability → lower barrier to click
+
+To isolate the variable, both creatives used the same **close-up framing**.
+
+| Creative | Model Type |
 |---|---|
-| **Subject Type** | Human face / AI-generated face / Animal character |
-| **Framing** | Bust-only / Full-body |
-| **Format** | Video / Photo (Facebook only) |
-| **Platform** | Facebook / TikTok |
+| Influencer Close-Up | Influencer |
+| General Close-Up | General Person |
+
+---
+
+### Additional Experiment: Close-Up vs Full-Shot (Framing Effect)
+> **Does showing only the face (close-up) vs. the full body affect performance?**
+
+Close-up emphasizes facial expression and eye contact. Full-shot shows more context and style. We tested both across influencer and general creatives.
+
+| Creative | Framing |
+|---|---|
+| Influencer Close-Up | Close-Up |
+| Influencer Full-Shot | Full-Shot |
+| General Close-Up | Close-Up |
+| General Full-Shot | Full-Shot |
 
 ---
 
 ## 📈 Key Findings
 
-### 1. Best Creative: Human Face, Bust-Only
-- Achieved the highest CTR on Facebook (**2.78%**) — nearly 2x the campaign average
-- Human faces consistently outperformed AI faces and character mascots across both platforms
-- Bust-only framing outperformed full-body across all subject types and platforms
+### 1. Influencer close-up drove higher CTR across both platforms
+- Facebook: Influencer avg **2.80%** vs General **1.94%**
+- TikTok: Influencer avg **1.41%** vs General **1.40%**
 
-> **Insight:** Viewers respond more strongly to close-up human faces — likely because they create a sense of direct eye contact and emotional connection, which is critical in short-form ad formats.
+> **Insight:** On Facebook, fans responded more strongly to recognizable influencer faces — consistent with the hypothesis that recognition drives clicks in a fan-platform context. The gap was smaller on TikTok, likely because TikTok's algorithm surfaces content based on behavior rather than brand recognition.
 
-### 2. Platform Differences: Facebook vs TikTok
-- **Facebook** drove higher CTR overall (avg 1.77% vs 1.15%)
-  - More effective for driving survey/form completions
-- **TikTok** drove higher website conversion rate (avg 33.0% vs 25.0%)
-  - Users who clicked on TikTok were more likely to take action on the landing page
+### 2. Budget reallocation improved CTR in Week 3–4
+After Week 2 results confirmed influencer creatives were outperforming, budget was shifted toward the top-performing ads. CTR for influencer creatives rose further in Week 3 while general creative spend was reduced.
 
-> **Insight:** Facebook users were more likely to click; TikTok users who clicked were more likely to convert. Optimal strategy: use Facebook for awareness/engagement, TikTok for direct conversion campaigns.
+### 3. Close-up consistently outperformed full-shot
+- Facebook: Close-up avg CTR **2.32%** vs Full-shot **1.76%**
+- TikTok: Close-up avg CTR **1.31%** vs Full-shot **1.19%**
 
-### 3. Video vs Photo (Facebook)
-- Video CTR (avg **2.36%**) outperformed Photo CTR (avg **1.52%**) for same concept
-- Conversion rate also higher for video (**30.4%** vs **26.4%**)
+> **Insight:** In short-form ad formats, direct eye contact and facial close-ups capture attention faster than full-body shots. This is consistent with findings in visual attention research suggesting faces — especially eyes — are processed first.
 
-> **Insight:** Even with a simple filming setup, video consistently outperformed static images — motion captures attention in the feed.
+### 4. Platform behavior differed
+- **Facebook** drove higher CTR overall and showed a larger gap between influencer and general creatives
+- **TikTok** showed higher conversion rates (click → action) but a smaller difference between creative types
 
-### 4. Budget Reallocation
-Based on Week 1–2 test results, I reallocated **63% of remaining budget** to the top 2 creatives (Human Bust — Human and AI versions), which improved overall click volume while reducing wasted spend on underperforming concepts.
+> **Recommendation:** For an influencer-fan platform in early stages, prioritize influencer close-up creatives and allocate more budget to Facebook for CTR efficiency. Use TikTok for conversion-focused campaigns targeting warmer audiences.
 
 ---
 
 ## 🛠 Tools Used
 
-- **Python** — pandas, matplotlib, seaborn
-- **Data Source** — Reconstructed from campaign records (Facebook Ads Manager / TikTok Ads)
-- **Platforms** — Facebook Ads, TikTok Ads
+- **Python** — pandas, matplotlib, seaborn, numpy
+- **Platforms** — Facebook Ads Manager, TikTok Ads
 
 ---
 
@@ -74,20 +82,17 @@ Based on Week 1–2 test results, I reallocated **63% of remaining budget** to t
 
 ```
 ├── README.md
-├── campaign_data.csv        ← Per-creative performance data
-├── analysis.py              ← Full analysis script
+├── analysis.py
+├── campaign_data.csv
 └── figures/
-    ├── fig1_platform_comparison.png
-    ├── fig2_ab_test_ctr.png
-    ├── fig3_framing_effect.png
-    ├── fig4_video_vs_photo.png
-    └── fig5_budget_reallocation.png
+    ├── fig1_main_experiment.png
+    ├── fig2_weekly_trend.png
+    ├── fig3_framing_experiment.png
+    └── fig4_summary_heatmap.png
 ```
 
 ---
 
-## 💡 What I Learned
+## 💡 Reflection
 
-This project taught me that **data without interpretation is just numbers**. The real value came from asking *why* — why did bust-only outperform full-body? Why did TikTok convert better despite lower CTR? Translating those questions into testable hypotheses and actionable budget decisions is what performance analytics is actually about.
-
-This experience is what motivated me to pursue a data analytics career path and transfer into Information Management.
+Running this campaign taught me that the most valuable part of data analysis isn't the chart — it's the question you ask before collecting the data. Framing a clear hypothesis (influencer vs. general) forced me to design the experiment deliberately rather than just running ads and hoping something worked. The weekly trend analysis also showed me how iterative decision-making — adjusting budget based on mid-campaign data — is more effective than a set-and-forget approach. These are the habits I want to develop further as a data analyst.
