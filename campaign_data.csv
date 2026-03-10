@@ -1,0 +1,15 @@
+platform,creative_id,creative_name,creative_type,subject_type,framing,impressions,clicks,ctr,spend_krw,conversions,conversion_rate,video_views,format
+Facebook,FB_A,Close-Up Clara,video,human,bust,3200,89,2.78,42000,31,34.83,,video
+Facebook,FB_B,Full-Shot Clara,video,human,full_body,2800,54,1.93,38000,14,25.93,,video
+Facebook,FB_C,Close-Up Nova,video,ai,bust,2600,48,1.85,35000,12,25.00,,video
+Facebook,FB_D,Full-Shot Nova,video,ai,full_body,2400,38,1.58,32000,8,21.05,,video
+Facebook,FB_E,Buddy,video,character,full_body,2100,29,1.38,28000,6,20.69,,video
+Facebook,FB_F,Mochi,video,character,full_body,1900,22,1.16,25000,4,18.18,,video
+Facebook,FB_G,Close-Up Clara (Photo),image,human,bust,1800,31,1.72,20000,9,29.03,,image
+Facebook,FB_H,Full-Shot Clara (Photo),image,human,full_body,1600,21,1.31,18000,5,23.81,,image
+TikTok,TT_A,Close-Up Clara,video,human,bust,5100,72,1.41,42000,28,38.89,3800,video
+TikTok,TT_B,Full-Shot Clara,video,human,full_body,4800,61,1.27,38000,22,36.07,3200,video
+TikTok,TT_C,Close-Up Nova,video,ai,bust,4200,51,1.21,35000,17,33.33,2900,video
+TikTok,TT_D,Full-Shot Nova,video,ai,full_body,3900,43,1.10,32000,14,32.56,2600,video
+TikTok,TT_E,Buddy,video,character,full_body,3500,35,1.00,28000,10,28.57,2400,video
+TikTok,TT_F,Mochi,video,character,full_body,3100,28,0.90,25000,8,28.57,2100,video
