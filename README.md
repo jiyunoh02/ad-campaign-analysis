@@ -1,9 +1,9 @@
-# 📊 Ad Creative A/B Test Analysis
+# Ad Creative A/B Test Analysis
 ### Asan Doers Startup Competition — Performance Marketing Campaign (2024)
 
 ---
 
-## 🗂 Project Overview
+## Project Overview
 
 This project analyzes the performance of paid social media campaigns using A/B testing across Facebook and TikTok. The goal is to identify which creative strategies drive higher click-through rates and engagement.
 
@@ -15,7 +15,7 @@ This project analyzes the performance of paid social media campaigns using A/B t
 
 ---
 
-## 🧪 Experiment Structure
+## Experiment Structure
 
 ### Main Experiment: Influencer vs General Person
 > **Does using an influencer's face vs. a general person's face produce higher CTR and conversion rate?**
@@ -47,7 +47,7 @@ Close-up emphasizes facial expression and eye contact. Full-shot shows more cont
 
 ---
 
-## 📈 Key Findings
+## Key Findings
 
 ### 1. Influencer close-up drove higher CTR across both platforms
 - Facebook: Influencer avg **2.80%** vs General **1.94%**
@@ -80,14 +80,14 @@ After Week 2 results confirmed influencer creatives were outperforming, budget w
 
 ---
 
-## 🛠 Tools Used
+## Tools Used
 
 - **Python** — pandas, matplotlib, seaborn, numpy
 - **Platforms** — Facebook Ads Manager, TikTok Ads
 
 ---
 
-## 📁 Files
+## Files
 
 ```
 ├── README.md
@@ -102,6 +102,6 @@ After Week 2 results confirmed influencer creatives were outperforming, budget w
 
 ---
 
-## 💡 Reflection
+## Reflection
 
 This project highlights that the most valuable part of data analysis is not only visualization, but the ability to ask the right questions and design meaningful experiments. Framing a clear hypothesis (influencer vs. general) forced me to design the experiment deliberately rather than just running ads and hoping something worked. The weekly trend analysis also showed me how iterative decision-making — adjusting budget based on mid-campaign data — is more effective than a set-and-forget approach. 
