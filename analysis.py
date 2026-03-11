@@ -72,6 +72,7 @@ fig.suptitle('Weekly CTR Trend: Before & After Budget Reallocation', fontsize=14
 weekly = main_df.groupby(['platform', 'model_type', 'week']).agg(
     avg_ctr=('ctr', 'mean')
 ).reset_index()
+weekly['week'] = weekly['week'].astype(int)
 
 for ax, platform in zip(axes, ['Facebook', 'TikTok']):
     sub = weekly[weekly['platform'] == platform]
@@ -83,12 +84,13 @@ for ax, platform in zip(axes, ['Facebook', 'TikTok']):
 
     # 예산 재배분 시점 표시
     ax.axvline(x=2.5, color='gray', linestyle='--', linewidth=1.5, alpha=0.7)
-    ax.text(2.55, ax.get_ylim()[1] * 0.92 if ax.get_ylim()[1] > 0 else 3.5,
+    ax.text(2.6, ax.get_ylim()[1] * 0.92 if ax.get_ylim()[1] > 0 else 3.5,
             'Budget\nReallocated', fontsize=8, color='gray')
 
     ax.set_title(platform, fontsize=12, fontweight='bold')
     ax.set_xlabel('Week')
     ax.set_ylabel('CTR (%)')
+    ax.set_xlim(0.7, 4.5)
     ax.set_xticks([1, 2, 3, 4])
     ax.set_xticklabels(['Week 1', 'Week 2', 'Week 3', 'Week 4'])
     ax.legend()

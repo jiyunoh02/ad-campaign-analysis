@@ -104,4 +104,4 @@ After Week 2 results confirmed influencer creatives were outperforming, budget w
 
 ## 💡 Reflection
 
-This project highlights that the most valuable part of data analysis is not only visualization, but the ability to ask the right questions and design meaningful experiments. Framing a clear hypothesis (influencer vs. general) forced me to design the experiment deliberately rather than just running ads and hoping something worked. The weekly trend analysis also showed me how iterative decision-making — adjusting budget based on mid-campaign data — is more effective than a set-and-forget approach. These are the habits I want to develop further as a data analyst.
+This project highlights that the most valuable part of data analysis is not only visualization, but the ability to ask the right questions and design meaningful experiments. Framing a clear hypothesis (influencer vs. general) forced me to design the experiment deliberately rather than just running ads and hoping something worked. The weekly trend analysis also showed me how iterative decision-making — adjusting budget based on mid-campaign data — is more effective than a set-and-forget approach. 
